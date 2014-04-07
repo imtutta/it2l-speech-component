@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   width="250" height="250">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script >		
+		<![CDATA[
+			import com.gmail.nxhoaf.Recorder;
+			import com.gmail.nxhoaf.SoundFormat;
+			var recorder : Recorder = new Recorder();
+			var myTimer:Timer;
+			
+			public function toMp3IsClicked() {
+				recorder.saveAs(SoundFormat.MP3);
+			}
+			
+			public function toWavIsClicked() {
+				recorder.saveAs(SoundFormat.WAV);
+			}
+			
+			public function playbackIsClicked() {
+				recorder.playback();
+			}
+			
+			public function recordIsClicked() {
+				var mic : Microphone = Microphone.getMicrophone();
+				if (mic == null) {
+					return;
+				}
+				recorder.setMicrophone(mic);
+				recorder.startRecord();
+				record.enabled = false;
+				stop.enabled = true;
+				
+				//JLFmyTimer= new Timer(30000, 200);
+				//JLFmyTimer.addEventListener("timer", sendToSails);
+				//JLFmyTimer.start();
+			}
+			
+			public function stopIsClicked() {
+				//JLFmyTimer.stop();
+				recorder.stopRecord();
+				record.enabled = true;
+				stop.enabled = false;
+				toWavIsClicked();
+				//toMp3.enabled = true;
+				//toWav.enabled = true;
+				//playback.enabled = true;
+				//JLFrecorder.encodeToWavAndSendToSails();
+			}
+			
+			public function sendIsClicked() : void{
+				recorder.encodeToFlacAndSend();			
+			}
+			
+			public function sendToSails(event:TimerEvent) : void {
+				stopIsClicked();
+				recordIsClicked();
+			}
+			
+		]]>
+	</fx:Script>
+	<s:Group x="0" y="0" width="100" height="100">	
+		<s:Label text="voice recording" x="155" y="2"/>
+		<s:Button id="record" name="record" x="155" y="20" label="ON" click="recordIsClicked();" width="45"/>
+		<s:Button id="stop" name="stop" x="205" y="20" label="OFF" enabled="false" click="stopIsClicked();" width="45"/>
+<!--		<s:Button id="toWav" x="0" y="25" label="W"  enabled="false" name="toWav" click="toWavIsClicked();" width="33"/>		
+		<s:Button x="40" y="25" name="playback" id="playback" label="P" enabled="false" click="playbackIsClicked();" width="33"/>-->
+	</s:Group>
+</s:Application>

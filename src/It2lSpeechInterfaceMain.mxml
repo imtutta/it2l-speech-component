@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   width="340" height="510">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script >		
+		<![CDATA[
+			import com.gmail.nxhoaf.Recorder;
+			import com.gmail.nxhoaf.SoundFormat;
+			
+			import org.as3wavsound.WavSound;
+			var recorder : Recorder = new Recorder();
+			var myTimer:Timer;
+			[Embed(source = "sound.wav", mimeType = "application/octet-stream")]
+			public const SoundTest:Class;
+			
+			[Embed(source = "sound1.wav", mimeType = "application/octet-stream")]
+			public const SoundTest1:Class;
+			
+			public function toMp3IsClicked() {
+				recorder.saveAs(SoundFormat.MP3);
+			}
+			
+			public function toWavIsClicked() {
+				recorder.saveAs(SoundFormat.WAV);
+			}
+			
+			public function playbackIsClicked() {
+				recorder.playback();
+			}
+			
+			public function playbackIsClickedPlanB () {
+				var drumLoop:WavSound = new WavSound(new SoundTest() as ByteArray);
+				var playingChannel = drumLoop.play();
+			}
+			
+			public function playbackIsClickedPlanB1 () {
+				var drumLoop:WavSound = new WavSound(new SoundTest1() as ByteArray);
+				var playingChannel = drumLoop.play();
+			}
+			
+			public function recordIsClicked() {
+				var mic : Microphone = Microphone.getMicrophone();
+				if (mic == null) {
+					return;
+				}
+				recorder.setMicrophone(mic);
+				recorder.startRecord();
+				label.text = "Recording...";
+				record.enabled = false;
+				stop.enabled = true;
+				myTimer= new Timer(30000, 0);
+				myTimer.addEventListener("timer", sendToSailsEngine);
+				myTimer.start();
+			}
+			
+			public function stopIsClicked() {
+				myTimer.stop();
+				recorder.stopRecord();
+				label.text = "Click Record to begin.";
+				record.enabled = true;
+				stop.enabled = false;
+				//toMp3.enabled = true;
+				toWav.enabled = true;
+				playback.enabled = true;
+				recorder.encodeToWavAndSendToSails()
+			}
+			
+			public function sendIsClicked() : void{
+				recorder.encodeToFlacAndSend();			
+			}
+			
+			public function speechRecognitionPlanB(response:Number) : void{
+				recorder.sendToServer(response);			
+			}
+			
+			public function sendToSailsEngine(e:*=null) : void {
+				recorder.encodeToWavAndSendToSails();			
+			}
+			
+		]]>
+	</fx:Script>
+	<s:Group x="31" y="31" width="250" height="212">
+		<!--<s:Image source="@Embed(source='images/logo.png')" x="15" y="50" width="250" height="60"/>-->
+		<s:Label id="label" x="15" y="120" width="240" height="55" fontSize="18" text="Click Record to begin."/>
+	</s:Group>
+	<s:Group x="31" y="269" width="250" height="134">		
+		<s:Button id="record" name="record" x="50" y="30" label="Record" click="recordIsClicked();"/>
+		<s:Button id="stop" name="stop" x="130" y="30" label="Stop" enabled="false" click="stopIsClicked();"/>
+		
+		<!--<s:Button id = "toMp3" name="toMp3" x="10" y="90" label="To Mp3" enabled="false" click="toMp3IsClicked();"/>-->
+		<s:Button id="toWav" x="10" y="90" width="70" label="To Wav"  enabled="false" name="toWav" click="toWavIsClicked();"/>		
+		<s:Button x="88" y="90" name="playback" id="playback" label="Play! " enabled="false" click="playbackIsClicked();"/>
+		<!--		<s:Button x="170" y="90" id="sendToSails" name="sendToSails" label="Send to Sail" click="sendToSailsEngine()"/>
+
+		<s:Button x="130" y="150" id="sendB" name="sendB" label="Gemma test " click="speechRecognitionPlanB(0)"/>
+		<s:Button x="50" y="150" id="playB" name="playB" label="Play test" click="playbackIsClickedPlanB()"/>
+		
+		<s:Button x="130" y="210" id="sendB1" name="sendB1" label="Alice test" click="speechRecognitionPlanB(1)"/>
+		<s:Button x="50" y="210" id="playB1" name="playB1" label="Play test" click="playbackIsClickedPlanB1()"/>-->
+	</s:Group>
+</s:Application>
