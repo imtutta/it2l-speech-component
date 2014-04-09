@@ -127,41 +127,6 @@ package com.gmail.nxhoaf
 			}
 		}
 		
-		public function sendToServer(response:Number) : void {	
-			var flacCodec:Object;
-			bytes.position = 0;
-			var rawData: ByteArray = new ByteArray();
-			var wavData : ByteArray = new ByteArray();
-			rawData = convert32to16(bytes);
-			//wavData=encodeToSailWav(rawData);	
-			var header : URLRequestHeader = new URLRequestHeader("Content-type", "application/octet-stream");
-			var url_request : URLRequest = new URLRequest();
-			if (response==0)
-				url_request.url = "http://localhost:8080/italk2learn/speechRecognition/speechRecognitionBackup";
-			else
-				url_request.url = "http://localhost:8080/italk2learn/speechRecognition/speechRecognitionBackupAlice";
-			url_request.contentType = "binary/octet-stream";
-			url_request.method = URLRequestMethod.POST;
-			url_request.data = rawData;
-			url_request.requestHeaders.push(header);			
-			var loader : URLLoader = new URLLoader();
-			loader.dataFormat=URLLoaderDataFormat.TEXT;
-			loader.addEventListener(Event.COMPLETE, urlLoader_complete);
-			loader.addEventListener(ErrorEvent.ERROR, urlLoader_error);
-			loader.load(url_request);
-			
-			function urlLoader_complete(evt:Event):void {
-				Alert.show(loader.data);
-			}
-			function urlLoader_error(evt:ErrorEvent): void {
-				Alert.show("*** speech to text *** " + evt.toString());
-			}
-			
-			function encodingProgressHandler(progress:int):void {
-				trace("FLACCodec.encodingProgressHandler(event):", progress);;
-			}
-		}
-		
 		/**
 		 * Alternative function to send the data to SAILS and get the transcription 
 		 * 
@@ -213,7 +178,7 @@ package com.gmail.nxhoaf
 		 * 
 		 * @param
 		 */
-		public function encodeToWavAndSendToSails() : void {
+		public function encodeToWavAndSendToASREngine() : void {
 			var flacCodec:Object;
 			bytes.position = 0;
 			var rawData: ByteArray = new ByteArray();
@@ -222,7 +187,7 @@ package com.gmail.nxhoaf
 			//wavData=encodeToSailWav(rawData);	
 			var header : URLRequestHeader = new URLRequestHeader("Content-type", "application/octet-stream");
 			var url_request : URLRequest = new URLRequest();
-			url_request.url = "http://localhost:8080/italk2learn/speechRecognition/";
+			url_request.url = "http://localhost:8080/italk2learn/speechRecognition/sendData";
 			url_request.contentType = "binary/octet-stream";
 			url_request.method = URLRequestMethod.POST;
 			url_request.data = rawData;
@@ -242,6 +207,47 @@ package com.gmail.nxhoaf
 			
 			function encodingProgressHandler(progress:int):void {
 				trace("FLACCodec.encodingProgressHandler(event):", progress);;
+			}
+		}
+		
+		
+		/**
+		 * Initialises ASREngine
+		 * 
+		 */
+		public function initASREngine():void{
+			var url_request : URLRequest = new URLRequest();
+			url_request.url = "http://localhost:8080/italk2learn/speechRecognition/initEngine";
+			var loader : URLLoader = new URLLoader();
+			loader.dataFormat=URLLoaderDataFormat.TEXT;
+			loader.addEventListener(Event.COMPLETE, urlLoader_complete);
+			loader.addEventListener(ErrorEvent.ERROR, urlLoader_error);
+			loader.load(url_request);
+			function urlLoader_complete(evt:Event):void {
+				Alert.show(loader.data);
+			}
+			function urlLoader_error(evt:ErrorEvent): void {
+				Alert.show("*** speech to text *** " + evt.toString());
+			}
+		}
+		
+		/**
+		 * Close ASREngine
+		 * 
+		 */
+		public function closeASREngine():void{
+			var url_request : URLRequest = new URLRequest();
+			url_request.url = "http://localhost:8080/italk2learn/speechRecognition/closeEngine";
+			var loader : URLLoader = new URLLoader();
+			loader.dataFormat=URLLoaderDataFormat.TEXT;
+			loader.addEventListener(Event.COMPLETE, urlLoader_complete);
+			loader.addEventListener(ErrorEvent.ERROR, urlLoader_error);
+			loader.load(url_request);
+			function urlLoader_complete(evt:Event):void {
+				Alert.show(loader.data);
+			}
+			function urlLoader_error(evt:ErrorEvent): void {
+				Alert.show("*** speech to text *** " + evt.toString());
 			}
 		}
 		
