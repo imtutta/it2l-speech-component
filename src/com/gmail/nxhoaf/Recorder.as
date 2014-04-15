@@ -28,11 +28,17 @@ package com.gmail.nxhoaf
 		private var bytes:ByteArray;
 		private var mic:Microphone;
 		private var mp3Encoder : ShineMP3Encoder;
+		private var _asrInitialised:Boolean= false;
+		
 		
 		private static const FLOAT_MAX_VALUE:Number = 1.0;
 		private static const SHORT_MAX_VALUE:int = 0x7fff;
 		public function Recorder()
 		{
+		}
+		
+		public function get asrInitialised():Boolean{
+			return _asrInitialised;
 		}
 		
 		public function setMicrophone (mic : Microphone) {
@@ -84,7 +90,7 @@ package com.gmail.nxhoaf
 			}
 		}
 		
-		public function encodeToFlacAndSend() : void {	
+		public function encodeToFlacAndSendToGoogle() : void {	
 			var flacCodec:Object;
 			flacCodec = (new cmodule.flac.CLibInit).init();
 			bytes.position = 0;
@@ -128,53 +134,7 @@ package com.gmail.nxhoaf
 		}
 		
 		/**
-		 * Alternative function to send the data to SAILS and get the transcription 
-		 * 
-		 * @param
-		 */
-		public function encodeToFlacAndSendToSails() : void {
-			var flacCodec:Object;
-			flacCodec = (new cmodule.flac.CLibInit).init();
-			bytes.position = 0;
-			var rawData: ByteArray = new ByteArray();
-			var flacData : ByteArray = new ByteArray();
-			rawData = convert32to16(bytes);
-			flacData.endian = Endian.LITTLE_ENDIAN;
-			flacCodec.encode(	encodingCompleteHandler, 
-				encodingProgressHandler, 
-				rawData, 
-				flacData, 
-				rawData.length, 
-				30);			
-			function encodingCompleteHandler(event:*):void {
-				var header : URLRequestHeader = new URLRequestHeader("Content-type", "application/octet-stream");
-				var url_request : URLRequest = new URLRequest();
-				url_request.url = "http://localhost:8080/italk2learn/speechRecognition/";
-				url_request.contentType = "binary/octet-stream";
-				url_request.method = URLRequestMethod.POST;
-				url_request.data = flacData;
-				url_request.requestHeaders.push(header);			
-				var loader : URLLoader = new URLLoader();
-				loader.addEventListener(Event.COMPLETE, urlLoader_complete);
-				loader.addEventListener(ErrorEvent.ERROR, urlLoader_error);
-				loader.load(url_request);
-				
-				function urlLoader_complete(evt:Event):void {
-					Alert.show(loader.data);
-					
-				}
-				function urlLoader_error(evt:ErrorEvent): void {
-					Alert.show("*** speech to text *** " + evt.toString());
-				}
-			}
-			
-			function encodingProgressHandler(progress:int):void {
-				trace("FLACCodec.encodingProgressHandler(event):", progress);;
-			}
-		}
-		
-		/**
-		 * Alternative function to send the data to SAILS and get the transcription 
+		 * Method that it sends a chunk of audio to ASR engine 
 		 * 
 		 * @param
 		 */
@@ -182,9 +142,7 @@ package com.gmail.nxhoaf
 			var flacCodec:Object;
 			bytes.position = 0;
 			var rawData: ByteArray = new ByteArray();
-			var wavData : ByteArray = new ByteArray();
 			rawData = convert32to16(bytes);
-			//wavData=encodeToSailWav(rawData);	
 			var header : URLRequestHeader = new URLRequestHeader("Content-type", "application/octet-stream");
 			var url_request : URLRequest = new URLRequest();
 			url_request.url = "http://localhost:8080/italk2learn/speechRecognition/sendData";
@@ -197,6 +155,8 @@ package com.gmail.nxhoaf
 			loader.addEventListener(Event.COMPLETE, urlLoader_complete);
 			loader.addEventListener(ErrorEvent.ERROR, urlLoader_error);
 			loader.load(url_request);
+			//JLF: Start proccess of recording
+			startRecord();
 				
 			function urlLoader_complete(evt:Event):void {
 				Alert.show(loader.data);
@@ -204,7 +164,6 @@ package com.gmail.nxhoaf
 			function urlLoader_error(evt:ErrorEvent): void {
 				Alert.show("*** speech to text *** " + evt.toString());
 			}
-			
 			function encodingProgressHandler(progress:int):void {
 				trace("FLACCodec.encodingProgressHandler(event):", progress);;
 			}
@@ -215,7 +174,7 @@ package com.gmail.nxhoaf
 		 * Initialises ASREngine
 		 * 
 		 */
-		public function initASREngine():void{
+		public function initASREngine():Boolean{
 			var url_request : URLRequest = new URLRequest();
 			url_request.url = "http://localhost:8080/italk2learn/speechRecognition/initEngine";
 			var loader : URLLoader = new URLLoader();
@@ -224,15 +183,16 @@ package com.gmail.nxhoaf
 			loader.addEventListener(ErrorEvent.ERROR, urlLoader_error);
 			loader.load(url_request);
 			function urlLoader_complete(evt:Event):void {
-				Alert.show(loader.data);
+				_asrInitialised=true;
 			}
 			function urlLoader_error(evt:ErrorEvent): void {
 				Alert.show("*** speech to text *** " + evt.toString());
 			}
+			return false;
 		}
 		
 		/**
-		 * Close ASREngine
+		 * Closes ASREngine
 		 * 
 		 */
 		public function closeASREngine():void{

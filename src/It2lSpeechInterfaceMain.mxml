@@ -2,7 +2,7 @@
 <s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
 			   xmlns:s="library://ns.adobe.com/flex/spark"
 			   xmlns:mx="library://ns.adobe.com/flex/mx"
-			   width="340" height="510" creationComplete="recordIsClicked()">
+			   width="250" height="250" creationComplete="initASREngine()">
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
@@ -10,86 +10,65 @@
 		<![CDATA[
 			import com.gmail.nxhoaf.Recorder;
 			import com.gmail.nxhoaf.SoundFormat;
-			
-			import org.as3wavsound.WavSound;
-			var recorder : Recorder = new Recorder();
-			var myTimer:Timer;
-			[Embed(source = "sound.wav", mimeType = "application/octet-stream")]
-			public const SoundTest:Class;
-			
-			[Embed(source = "sound1.wav", mimeType = "application/octet-stream")]
-			public const SoundTest1:Class;
+			private var recorder : Recorder = new Recorder();
+			private var asrTimer:Timer;
 			
 			public function toMp3IsClicked():void {
 				recorder.saveAs(SoundFormat.MP3);
 			}
 			
-			public function toWavIsClicked():void  {
+			public function toWavIsClicked():void {
 				recorder.saveAs(SoundFormat.WAV);
 			}
 			
-			public function playbackIsClicked():void  {
+			public function playbackIsClicked():void {
 				recorder.playback();
 			}
 			
-			public function playbackIsClickedPlanB ():void  {
-				var drumLoop:WavSound = new WavSound(new SoundTest() as ByteArray);
-				var playingChannel = drumLoop.play();
+			
+			public function initASREngine():void{
+				recorder.initASREngine();
 			}
 			
-			public function playbackIsClickedPlanB1 ():void  {
-				var drumLoop:WavSound = new WavSound(new SoundTest1() as ByteArray);
-				var playingChannel = drumLoop.play();
-			}
 			
-			public function recordIsClicked() :void {
+			public function recordIsClicked():void {
 				var mic : Microphone = Microphone.getMicrophone();
 				if (mic == null) {
 					return;
 				}
 				recorder.setMicrophone(mic);
 				recorder.startRecord();
-				label.text = "Recording...";
-				//record.enabled = false;
+				record.enabled = false;
 				stop.enabled = true;
-				myTimer= new Timer(30000, 0);
-				myTimer.addEventListener("timer", sendToSailsEngine);
-				myTimer.start();
+				//JLF:Sending chunks of audio each 10 seconds
+				asrTimer= new Timer(10000, 0);
+				asrTimer.addEventListener("timer", sendToSailEngine);
+				asrTimer.start();
 			}
 			
-			public function stopIsClicked():void  {
-				myTimer.stop();
+			public function stopIsClicked():void {
+				asrTimer.stop();
 				recorder.stopRecord();
-				label.text = "Click Record to begin.";
-				//record.enabled = true;
+				record.enabled = true;
 				stop.enabled = false;
-				//toMp3.enabled = true;
-				toWav.enabled = true;
-				playback.enabled = true;
-				recorder.encodeToWavAndSendToASREngine()
+				//toWavIsClicked();
+				if (recorder.asrInitialised) {
+					recorder.encodeToWavAndSendToASREngine();
+					recorder.closeASREngine();
+				}
 			}
 			
-			public function sendIsClicked() : void{
-				recorder.encodeToFlacAndSend();			
-			}
-			
-			public function sendToSailsEngine(e:*=null) : void {
-				recorder.encodeToWavAndSendToASREngine();			
+			public function sendToSailEngine(event:TimerEvent) : void {
+				if (recorder.asrInitialised) {
+					recorder.encodeToWavAndSendToASREngine();
+				}
 			}
 			
 		]]>
 	</fx:Script>
-	<s:Group x="31" y="31" width="250" height="212">
-		<!--<s:Image source="@Embed(source='images/logo.png')" x="15" y="50" width="250" height="60"/>-->
-		<s:Label id="label" x="15" y="120" width="240" height="55" fontSize="18" text="Click Record to begin."/>
-	</s:Group>
-	<s:Group x="31" y="269" width="250" height="134">		
-		<!--<s:Button id="record" name="record" x="50" y="30" label="Record" click="recordIsClicked();"/>-->
-		<s:Button id="stop" name="stop" x="130" y="30" label="Stop" enabled="false" click="stopIsClicked();"/>
-		
-		<!--<s:Button id = "toMp3" name="toMp3" x="10" y="90" label="To Mp3" enabled="false" click="toMp3IsClicked();"/>-->
-		<s:Button id="toWav" x="10" y="90" width="70" label="To Wav"  enabled="false" name="toWav" click="toWavIsClicked();"/>		
-		<s:Button x="88" y="90" name="playback" id="playback" label="Play! " enabled="false" click="playbackIsClicked();"/>
-		<!--		<s:Button x="170" y="90" id="sendToSails" name="sendToSails" label="Send to Sail" click="sendToSailsEngine()"/>-->
+	<s:Group x="0" y="0" width="100" height="100">	
+		<s:Label text="speech recorder" x="155" y="2"/>
+		<s:Button id="record" name="record" x="155" y="20" label="ON" click="recordIsClicked();" width="45"/>
+		<s:Button id="stop" name="stop" x="205" y="20" label="OFF" enabled="false" click="stopIsClicked();" width="45"/>
 	</s:Group>
 </s:Application>
