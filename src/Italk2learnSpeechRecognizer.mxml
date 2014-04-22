@@ -52,10 +52,6 @@
 				//JLFrecorder.encodeToWavAndSendToSails();
 			}
 			
-			public function sendIsClicked() : void{
-				recorder.encodeToFlacAndSend();			
-			}
-			
 			public function sendToSails(event:TimerEvent) : void {
 				stopIsClicked();
 				recordIsClicked();
