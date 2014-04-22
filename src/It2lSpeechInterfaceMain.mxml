@@ -41,7 +41,7 @@
 				record.enabled = false;
 				stop.enabled = true;
 				//JLF:Sending chunks of audio each 10 seconds
-				asrTimer= new Timer(10000, 0);
+				asrTimer= new Timer(5000, 0);
 				asrTimer.addEventListener("timer", sendToSailEngine);
 				asrTimer.start();
 			}
@@ -61,6 +61,8 @@
 			public function sendToSailEngine(event:TimerEvent) : void {
 				if (recorder.asrInitialised) {
 					recorder.encodeToWavAndSendToASREngine();
+				} else {
+					recorder.initASREngine();
 				}
 			}
 			

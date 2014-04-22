@@ -176,7 +176,11 @@ package com.gmail.nxhoaf
 		 */
 		public function initASREngine():Boolean{
 			var url_request : URLRequest = new URLRequest();
+			var header : URLRequestHeader = new URLRequestHeader("Content-type", "application/octet-stream");
 			url_request.url = "http://localhost:8080/italk2learn/speechRecognition/initEngine";
+			url_request.method = URLRequestMethod.POST;
+			url_request.data = new ByteArray();
+			url_request.requestHeaders.push(header);
 			var loader : URLLoader = new URLLoader();
 			loader.dataFormat=URLLoaderDataFormat.TEXT;
 			loader.addEventListener(Event.COMPLETE, urlLoader_complete);
@@ -197,7 +201,11 @@ package com.gmail.nxhoaf
 		 */
 		public function closeASREngine():void{
 			var url_request : URLRequest = new URLRequest();
+			var header : URLRequestHeader = new URLRequestHeader("Content-type", "application/octet-stream");
 			url_request.url = "http://localhost:8080/italk2learn/speechRecognition/closeEngine";
+			url_request.method = URLRequestMethod.POST;
+			url_request.data = new ByteArray();
+			url_request.requestHeaders.push(header);
 			var loader : URLLoader = new URLLoader();
 			loader.dataFormat=URLLoaderDataFormat.TEXT;
 			loader.addEventListener(Event.COMPLETE, urlLoader_complete);
@@ -205,6 +213,7 @@ package com.gmail.nxhoaf
 			loader.load(url_request);
 			function urlLoader_complete(evt:Event):void {
 				Alert.show(loader.data);
+				_asrInitialised=false;
 			}
 			function urlLoader_error(evt:ErrorEvent): void {
 				Alert.show("*** speech to text *** " + evt.toString());
