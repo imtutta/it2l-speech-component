@@ -1,4 +1,4 @@
-package com.gmail.nxhoaf
+package com.italk2learn.speech
 {
 	import com.adobe.audio.format.WAVWriter;
 	
@@ -14,6 +14,7 @@ package com.gmail.nxhoaf
 	import flash.net.URLRequest;
 	import flash.net.URLRequestHeader;
 	import flash.net.URLRequestMethod;
+	import flash.net.URLVariables;
 	import flash.utils.ByteArray;
 	import flash.utils.Endian;
 	
@@ -145,7 +146,7 @@ package com.gmail.nxhoaf
 			rawData = convert32to16(bytes);
 			var header : URLRequestHeader = new URLRequestHeader("Content-type", "application/octet-stream");
 			var url_request : URLRequest = new URLRequest();
-			url_request.url = "http://localhost:8080/italk2learn/speechRecognition/sendData";
+			url_request.url = "/italk2learn/speechRecognition/sendData";
 			url_request.contentType = "binary/octet-stream";
 			url_request.method = URLRequestMethod.POST;
 			url_request.data = rawData;
@@ -159,7 +160,7 @@ package com.gmail.nxhoaf
 			startRecord();
 				
 			function urlLoader_complete(evt:Event):void {
-				Alert.show(loader.data);
+				//Alert.show(loader.data);
 			}
 			function urlLoader_error(evt:ErrorEvent): void {
 				Alert.show("*** speech to text *** " + evt.toString());
@@ -174,12 +175,15 @@ package com.gmail.nxhoaf
 		 * Initialises ASREngine
 		 * 
 		 */
-		public function initASREngine():Boolean{
+		public function initASREngine(user:String):Boolean{
 			var url_request : URLRequest = new URLRequest();
-			var header : URLRequestHeader = new URLRequestHeader("Content-type", "application/octet-stream");
-			url_request.url = "http://localhost:8080/italk2learn/speechRecognition/initEngine";
-			url_request.method = URLRequestMethod.POST;
-			url_request.data = new ByteArray();
+			var header : URLRequestHeader = new URLRequestHeader("Content-type", "application/json");
+			url_request.requestHeaders.push(header);
+			url_request.url = "/italk2learn/speechRecognition/initEngine";
+			url_request.method = URLRequestMethod.GET;
+			var variables : URLVariables = new URLVariables();
+			variables.user=user;
+			url_request.data = variables;
 			url_request.requestHeaders.push(header);
 			var loader : URLLoader = new URLLoader();
 			loader.dataFormat=URLLoaderDataFormat.TEXT;
@@ -202,7 +206,7 @@ package com.gmail.nxhoaf
 		public function closeASREngine():void{
 			var url_request : URLRequest = new URLRequest();
 			var header : URLRequestHeader = new URLRequestHeader("Content-type", "application/octet-stream");
-			url_request.url = "http://localhost:8080/italk2learn/speechRecognition/closeEngine";
+			url_request.url = "/italk2learn/speechRecognition/closeEngine";
 			url_request.method = URLRequestMethod.POST;
 			url_request.data = new ByteArray();
 			url_request.requestHeaders.push(header);

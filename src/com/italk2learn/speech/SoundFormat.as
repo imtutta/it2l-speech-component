@@ -1,4 +1,4 @@
-package com.gmail.nxhoaf
+package com.italk2learn.speech
 {
 	public class SoundFormat
 	{

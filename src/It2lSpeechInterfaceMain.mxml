@@ -8,10 +8,11 @@
 	</fx:Declarations>
 	<fx:Script >		
 		<![CDATA[
-			import com.gmail.nxhoaf.Recorder;
-			import com.gmail.nxhoaf.SoundFormat;
+			import com.italk2learn.speech.Recorder;
+			import com.italk2learn.speech.SoundFormat;
 			private var recorder : Recorder = new Recorder();
 			private var asrTimer:Timer;
+			private var user:String;
 			
 			public function toMp3IsClicked():void {
 				recorder.saveAs(SoundFormat.MP3);
@@ -25,9 +26,9 @@
 				recorder.playback();
 			}
 			
-			
 			public function initASREngine():void{
-				recorder.initASREngine();
+				user=this.parameters.user.toString();
+				recorder.initASREngine(user);
 			}
 			
 			
@@ -40,9 +41,9 @@
 				recorder.startRecord();
 				record.enabled = false;
 				stop.enabled = true;
-				//JLF:Sending chunks of audio each 10 seconds
+				//JLF:Sending chunks of audio each 5 seconds
 				asrTimer= new Timer(5000, 0);
-				asrTimer.addEventListener("timer", sendToSailEngine);
+				asrTimer.addEventListener("timer", sendToSpeechRecognitionEngine);
 				asrTimer.start();
 			}
 			
@@ -58,11 +59,11 @@
 				}
 			}
 			
-			public function sendToSailEngine(event:TimerEvent) : void {
+			public function sendToSpeechRecognitionEngine(event:TimerEvent) : void {
 				if (recorder.asrInitialised) {
 					recorder.encodeToWavAndSendToASREngine();
 				} else {
-					recorder.initASREngine();
+					recorder.initASREngine(user);
 				}
 			}
 			
