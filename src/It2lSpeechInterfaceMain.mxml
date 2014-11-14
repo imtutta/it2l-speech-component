@@ -2,17 +2,66 @@
 <s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
 			   xmlns:s="library://ns.adobe.com/flex/spark"
 			   xmlns:mx="library://ns.adobe.com/flex/mx"
-			   width="250" height="250" creationComplete="initASREngine()">
+			   width="250" height="250" 
+			   creationComplete="initASREngine()">
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	<fx:Script >		
 		<![CDATA[
+			import flash.display.MovieClip;
+			
+			import flash.events.Event;
+			import spark.components.Button;
 			import com.italk2learn.speech.Recorder;
 			import com.italk2learn.speech.SoundFormat;
 			private var recorder : Recorder = new Recorder();
 			private var asrTimer:Timer;
 			private var user:String;
+			[@Embed('../libs/buttons.swf#btOffClass')]
+			private var onButton:Class;
+			private var loaderContent1:Object;
+
+			public function onSetupMovieClipButton ( mc: MovieClip ): void
+			{
+				mc.buttonMode = true;
+				mc.mouseChildren=false;
+				mc.addEventListener ( MouseEvent.MOUSE_UP, onMouseUp );
+				mc.addEventListener ( MouseEvent.MOUSE_DOWN, onMouseDown );
+				mc.addEventListener ( MouseEvent.MOUSE_OVER, onMouseOver );
+				mc.addEventListener ( MouseEvent.MOUSE_OUT, onMouseOut );
+			}
+			public function onCleanMovieClipButton ( mc: MovieClip ): void
+			{
+				mc.removeEventListener ( MouseEvent.MOUSE_UP, onMouseUp );
+				mc.removeEventListener ( MouseEvent.MOUSE_DOWN, onMouseDown );
+				mc.removeEventListener ( MouseEvent.MOUSE_OVER, onMouseOver );
+				mc.removeEventListener ( MouseEvent.MOUSE_OUT, onMouseOut );
+			}
+			
+			public function onMouseDown ( e: MouseEvent ): void
+			{
+				var mc:MovieClip = ( e.target as MovieClip );
+				if( mc.totalFrames>1 )
+					mc.gotoAndStop(2);
+			}
+			public function onMouseOver ( e: MouseEvent ): void
+			{
+				var mc:MovieClip = ( e.target as MovieClip );
+				if( mc.totalFrames>1 )
+					mc.gotoAndStop(2);
+			}
+			public function onMouseOut ( e: MouseEvent ): void
+			{
+				var mc:MovieClip = ( e.target as MovieClip );
+				mc.gotoAndStop(1);
+			}
+			public function onMouseUp( e: MouseEvent ): void
+			{
+				var mc:MovieClip = ( e.target as MovieClip );
+				mc.gotoAndStop(1);
+			}
+			
 			
 			public function toMp3IsClicked():void {
 				recorder.saveAs(SoundFormat.MP3);
@@ -26,11 +75,17 @@
 				recorder.playback();
 			}
 			
-			public function initASREngine():void{
+			public function initASREngine():void {		
 				user=this.parameters.user.toString();
 				recorder.initASREngine(user);
 			}
 			
+			protected function mySprite_addedToStageHandler(event:Event):void
+			{
+			/*	var sprite:MovieClip  = new onButton() as MovieClip; 
+				sprite.x = 10;
+				record.addChild(sprite);*/
+			}
 			
 			public function recordIsClicked():void {
 				var mic : Microphone = Microphone.getMicrophone();
@@ -39,8 +94,8 @@
 				}
 				recorder.setMicrophone(mic);
 				recorder.startRecord();
-				record.enabled = false;
-				stop.enabled = true;
+				//record.enabled = false;
+				//stop.enabled = true;
 				//JLF:Sending chunks of audio each 5 seconds
 				asrTimer= new Timer(5000, 0);
 				asrTimer.addEventListener("timer", sendToSpeechRecognitionEngine);
@@ -50,8 +105,8 @@
 			public function stopIsClicked():void {
 				asrTimer.stop();
 				recorder.stopRecord();
-				record.enabled = true;
-				stop.enabled = false;
+				//record.enabled = true;
+				//stop.enabled = false;
 				//toWavIsClicked();
 				if (recorder.asrInitialised) {
 					recorder.encodeToWavAndSendToASREngine();
@@ -67,11 +122,23 @@
 				}
 			}
 			
+            public var mc:MovieClip = new MovieClip;
+            public function init():void {
+			/*	var BtnClick:SimpleButton = SimpleButton(swfObj.content["btOffClass"]);
+				BtnClick.addEventListener(MouseEvent.CLICK, recordIsClicked);
+               // mc = ( ( swfObj.content as MovieClip ).getChildByName("btOffClass") as Loader ).content as MovieClip;
+				onSetupMovieClipButton(mc);*/
+				trace("init");
+            }
+            
+			
 		]]>
 	</fx:Script>
-	<s:Group x="0" y="0" width="100" height="100">	
-		<s:Label text="speech recorder" x="155" y="2"/>
+	<s:Group x="0" y="0" width="10" height="10">	
+		<!--<s:Label text="speech recorder test" x="155" y="2"/>
 		<s:Button id="record" name="record" x="155" y="20" label="ON" click="recordIsClicked();" width="45"/>
 		<s:Button id="stop" name="stop" x="205" y="20" label="OFF" enabled="false" click="stopIsClicked();" width="45"/>
+		<s:SpriteVisualElement id="record" name="record" addedToStage="mySprite_addedToStageHandler(event)" x="155" y="20" click="recordIsClicked();" width="45"/>-->
+		<s:SWFLoader minHeight="50" minWidth="100" id="swfObj" source="../libs/buttons.swf" complete="init();" height="50" width="100"/>
 	</s:Group>
 </s:Application>

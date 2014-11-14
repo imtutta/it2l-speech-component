@@ -2,7 +2,9 @@
 <s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
 			   xmlns:s="library://ns.adobe.com/flex/spark"
 			   xmlns:mx="library://ns.adobe.com/flex/mx"
-			   width="250" height="250">
+			   width="250" height="250"
+			   creationComplete="init()"> 
+			   
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
@@ -48,6 +50,26 @@
 				stopIsClicked();
 				recordIsClicked();
 			}
+			
+			private function init():void {   
+
+				  //Create a new button   
+
+				  var newButton:Button = new Button();   
+
+				  //Modify Properties   
+
+				  newButton.label = "This one is done by ActionScript";   
+
+				  newButton.x = 10;   
+
+				  newButton.y = 40;   
+
+				  //Add the new button to the stage (Screen)   
+
+				  this.addChild(newButton);   
+
+			}   
 			
 		]]>
 	</fx:Script>
