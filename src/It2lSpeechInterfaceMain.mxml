@@ -44,22 +44,26 @@
 				var mc:MovieClip = ( e.target as MovieClip );
 				if( mc.totalFrames>1 )
 					mc.gotoAndStop(2);
+				trace("onMouseDown");
 			}
 			public function onMouseOver ( e: MouseEvent ): void
 			{
 				var mc:MovieClip = ( e.target as MovieClip );
 				if( mc.totalFrames>1 )
 					mc.gotoAndStop(2);
+				trace("onMouseOver");
 			}
 			public function onMouseOut ( e: MouseEvent ): void
 			{
 				var mc:MovieClip = ( e.target as MovieClip );
 				mc.gotoAndStop(1);
+				trace("onMouseOut");
 			}
 			public function onMouseUp( e: MouseEvent ): void
 			{
 				var mc:MovieClip = ( e.target as MovieClip );
 				mc.gotoAndStop(1);
+				trace("onMouseUp");
 			}
 			
 			
@@ -76,8 +80,8 @@
 			}
 			
 			public function initASREngine():void {		
-				user=this.parameters.user.toString();
-				recorder.initASREngine(user);
+				/*user=this.parameters.user.toString();
+				recorder.initASREngine(user);*/
 			}
 			
 			protected function mySprite_addedToStageHandler(event:Event):void
@@ -124,13 +128,16 @@
 			
             public var mc:MovieClip = new MovieClip;
             public function init():void {
-			/*	var BtnClick:SimpleButton = SimpleButton(swfObj.content["btOffClass"]);
-				BtnClick.addEventListener(MouseEvent.CLICK, recordIsClicked);
-               // mc = ( ( swfObj.content as MovieClip ).getChildByName("btOffClass") as Loader ).content as MovieClip;
-				onSetupMovieClipButton(mc);*/
-				trace("init");
+				//var BtnClick:SimpleButton = SimpleButton(swfObj.content["btOffClass"]);
+				//BtnClick.addEventListener(MouseEvent.CLICK, recordIsClicked);*/
+                //mc = ( ( swfObj.content as MovieClip ).getChildByName("btOff") as Loader ).content as MovieClip;
+				mc = swfObj.content["btOff"] as MovieClip;
+				onSetupMovieClipButton(mc);
             }
-            
+			
+			public function release():void {
+				
+			}
 			
 		]]>
 	</fx:Script>
